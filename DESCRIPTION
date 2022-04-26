@@ -1,0 +1,18 @@
+Package: globalhabml
+Title: Machine Learning Tools for HAB Prediction
+Description: An introduction to machine learning for the Global HAB Workshop May 9-13, 2022.
+URL: https://github.com/BigelowLab/globalhabml
+Version: 0.1
+Depends:
+    R (>= 4.0)
+Imports:
+    rlang,
+    dplyr,
+    readr,
+    tidymodels,
+    ggplot2
+Maintainer: Johnathan Evanilla <jevanilla@bigelow.org>
+Author: Johnathan Evanilla <jevanilla@bigelow.org>
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.1.1
