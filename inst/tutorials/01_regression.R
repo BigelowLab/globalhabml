@@ -131,9 +131,6 @@ rf_metrics <- metrics(rf_pred, truth = `Plagioselmis prolonga`, estimate=.pred)
 
 rf_metrics
 
-rf_pred <- rf_pred %>% 
-  mutate(row = 1:nrow(rf_pred))
-
 
 ggplot2::ggplot(data = rf_pred, ggplot2::aes(x=`Plagioselmis prolonga`, y=.pred)) + 
   ggplot2::geom_point() + 
@@ -143,13 +140,19 @@ ggplot2::ggplot(data = rf_pred, ggplot2::aes(x=`Plagioselmis prolonga`, y=.pred)
 
 ## SVM
 
-svm <- svm_poly()
+svm <- svm_poly(mode="regression", degree=2, cost=4)
 
 svm
 
 svm_fit <- svm %>% 
   fit(`Plagioselmis prolonga` ~ ., data=prepped_training)
 
+
+svm_pred <- augment(svm_fit, prepped_testing)
+
+svm_metrics <- metrics(svm_pred, truth = `Plagioselmis prolonga`, estimate=.pred)
+
+svm_metrics
 
 data <- hab %>% 
   select(Chl, Temp, Sal, PO4, NO3,  NH4, `Plagioselmis prolonga`) %>% 

@@ -1,0 +1,94 @@
+---
+title: "02 Classification"
+author: "Johnathan Evanilla"
+date: "5/4/2022"
+output: html_document
+---
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidymodels)
+library(ggplot2)
+```
+
+```{r}
+devtools::load_all()
+```
+
+
+```{r}
+hab <- readr::read_csv(system.file(file.path("input_data", "common_species.csv"), package="globalhabml"))
+
+hab
+```
+
+```{r}
+data <- hab %>% 
+  select(Chl, Temp, Sal, PO4, NO3,  NH4, `Plagioselmis prolonga`) %>% 
+  tidyr::drop_na()
+
+summary(data)
+```
+
+```{r}
+hist(data$`Plagioselmis prolonga`)
+```
+
+
+```{r}
+data <- data %>% 
+  mutate(bloom = recode_classification(`Plagioselmis prolonga`, lut=c(0,100,500)))
+
+data
+```
+
+```{r}
+data %>% count(bloom)
+```
+
+```{r}
+data <- data %>% 
+  select(-`Plagioselmis prolonga`) %>% 
+  mutate(bloom = as.factor(bloom))
+```
+
+```{r}
+data 
+```
+
+
+
+```{r}
+data_split <- initial_split(data, prop=9/10)
+
+data_test <- testing(data_split)
+data_train <- training(data_split)
+
+hab_recipe <- recipe(bloom ~ ., data=data_split) %>% 
+  step_log(Chl) %>% 
+  step_normalize(all_numeric_predictors()) %>% 
+  prep()
+
+prepped_training <- juice(hab_recipe)
+prepped_testing <- bake(hab_recipe, data_test)
+
+```
+
+```{r}
+rf <- rand_forest(mode = "classification",
+                  engine="ranger")
+
+rf_fit <- rf %>% 
+  fit(bloom ~ ., data=prepped_training)
+
+rf_pred <- augment(rf_fit, prepped_testing)
+
+rf_metrics <- metrics(rf_pred, truth = bloom, estimate=.pred_class)
+
+rf_metrics
+
+```
+
+
+

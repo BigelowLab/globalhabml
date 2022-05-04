@@ -21,3 +21,11 @@ An introduction to machine learning for the Global HAB Workshop May
 ## Installation
 
     remotes::install_github("BigelowLab/globalhabml")
+
+## Tidymodels Links
+
+[Official Page](https://www.tidymodels.org/)
+
+[Textbook](https://www.tmwr.org/)
+
+[Bigelow Reference Page](https://oj713.github.io/tidymodels/index.html)

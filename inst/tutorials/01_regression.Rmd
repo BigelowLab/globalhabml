@@ -1,0 +1,260 @@
+---
+title: "01 Regression"
+author: "Johnathan Evanilla"
+date: "5/4/2022"
+output: html_document
+---
+
+
+
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidymodels)
+library(ggplot2)
+```
+
+
+
+```{r}
+hab <- readr::read_csv(system.file(file.path("input_data", "common_species.csv"), package="globalhabml"))
+
+hab
+```
+
+```{r}
+nrow(hab)
+```
+
+
+```{r}
+summary(hab)
+```
+
+```{r}
+data <- hab %>% 
+  select(Chl, Temp, Sal, `Plagioselmis prolonga`) %>% 
+  tidyr::drop_na()
+
+data
+```
+
+
+```{r}
+summary(data)
+```
+
+
+```{r}
+data_split <- initial_split(data, prop=9/10)
+
+data_split
+```
+
+
+```{r}
+data_test <- testing(data_split)
+data_train <- training(data_split)
+```
+
+
+```{r}
+hist(data$Chl)
+```
+
+
+```{r}
+hist(log10(data$Chl+1))
+```
+
+
+```{r}
+hab_recipe <- recipe(`Plagioselmis prolonga` ~ ., data=data_split) %>% 
+  step_log(Chl) %>% 
+  step_normalize(all_numeric_predictors()) %>% 
+  prep()
+
+hab_recipe
+```
+
+
+```{r}
+prepped_training <- juice(hab_recipe)
+prepped_testing <- bake(hab_recipe, data_test)
+```
+
+
+## Linear Regression
+
+```{r}
+show_engines("linear_reg")
+```
+
+
+```{r}
+lr <- linear_reg() %>% 
+  set_mode("regression") %>% 
+  set_engine("lm")
+
+lr
+```
+
+
+```{r}
+lr_fit <- lr %>% 
+  fit(`Plagioselmis prolonga` ~ ., data=prepped_training)
+
+lr_fit
+```
+
+```{r}
+predict(lr_fit, prepped_testing)
+```
+
+
+```{r}
+lr_pred <- augment(lr_fit, prepped_testing)
+
+lr_pred
+```
+
+
+```{r}
+lr_metrics <- metrics(lr_pred, truth = `Plagioselmis prolonga`, estimate=.pred)
+
+lr_metrics
+```
+
+```{r}
+ggplot2::ggplot(data = lr_pred, ggplot2::aes(x=.pred, y=`Plagioselmis prolonga`)) + 
+  ggplot2::geom_point() + 
+  ggplot2::geom_abline(slope=1, intercept=0)
+```
+
+## K-nearest Neighbors
+
+
+
+```{r}
+show_engines("nearest_neighbor")
+```
+
+
+
+```{r}
+neighbor <- nearest_neighbor(mode = "regression",
+                             engine = "kknn")
+
+neighbor
+```
+
+```{r}
+n_fit <- neighbor %>% 
+  fit(`Plagioselmis prolonga` ~ ., data=prepped_training)
+
+n_fit
+```
+
+```{r}
+n_pred <- augment(n_fit, prepped_testing)
+```
+
+```{r}
+n_metrics <- metrics(n_pred, truth = `Plagioselmis prolonga`, estimate=.pred)
+
+n_metrics
+```
+
+```{r}
+lr_metrics
+```
+
+## Random Forest
+
+```{r}
+show_engines("rand_forest")
+```
+
+
+```{r}
+rf <- rand_forest(mode = "regression",
+                  engine="ranger")
+
+rf_fit <- rf %>% 
+  fit(`Plagioselmis prolonga` ~ ., data=prepped_training)
+
+rf_fit
+
+```
+
+
+```{r}
+rf_pred <- augment(rf_fit, prepped_testing)
+
+rf_metrics <- metrics(rf_pred, truth = `Plagioselmis prolonga`, estimate=.pred)
+
+rf_metrics
+```
+
+
+```{r}
+ggplot2::ggplot(data = rf_pred, ggplot2::aes(x=.pred, y=`Plagioselmis prolonga`)) + 
+  ggplot2::geom_point() + 
+  ggplot2::geom_abline(slope=1, intercept=0)
+```
+
+## How can we inprove this model further?
+
+```{r}
+summary(hab)
+```
+
+
+```{r}
+data <- hab %>% 
+  select(Chl, Temp, Sal, PO4, NO3,  NH4, `Plagioselmis prolonga`) %>% 
+  tidyr::drop_na()
+```
+
+
+
+```{r}
+data_split <- initial_split(data, prop=9/10)
+
+data_test <- testing(data_split)
+data_train <- training(data_split)
+
+hab_recipe <- recipe(`Plagioselmis prolonga` ~ ., data=data_split) %>% 
+  step_log(Chl) %>% 
+  step_normalize(all_numeric_predictors()) %>% 
+  prep()
+
+prepped_training <- juice(hab_recipe)
+prepped_testing <- bake(hab_recipe, data_test)
+
+```
+
+
+
+```{r}
+rf <- rand_forest(mode = "regression",
+                  engine="ranger")
+
+rf_fit <- rf %>% 
+  fit(`Plagioselmis prolonga` ~ ., data=prepped_training)
+
+rf_pred_2 <- augment(rf_fit, prepped_testing)
+
+rf_metrics_2 <- metrics(rf_pred_2, truth = `Plagioselmis prolonga`, estimate=.pred)
+
+rf_metrics_2
+
+```
+
+```{r}
+ggplot2::ggplot(data = rf_pred_2, ggplot2::aes(x=.pred, y=`Plagioselmis prolonga`)) + 
+  ggplot2::geom_point() + 
+  ggplot2::geom_abline(slope=1, intercept=0)
+```
+

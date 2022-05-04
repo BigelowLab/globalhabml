@@ -10,7 +10,10 @@ Imports:
     dplyr,
     readr,
     tidymodels,
-    ggplot2
+    ggplot2,
+    kknn,
+    kernlab,
+    ranger
 Maintainer: Johnathan Evanilla <jevanilla@bigelow.org>
 Author: Johnathan Evanilla <jevanilla@bigelow.org>
 License: MIT + file LICENSE

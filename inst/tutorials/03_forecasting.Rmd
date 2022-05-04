@@ -1,0 +1,37 @@
+---
+title: "03 Forecasting"
+author: "Johnathan Evanilla"
+date: "5/4/2022"
+output: html_document
+---
+
+```{r}
+devtools::load_all()
+```
+
+
+```{r}
+psp <- readr::read_csv(system.file(file.path("input_data", "tutorial_data_test.csv"), package="globalhabml"))
+
+
+psp
+```
+
+```{r}
+summary(psp)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
