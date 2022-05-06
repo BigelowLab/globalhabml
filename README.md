@@ -24,22 +24,33 @@ An introduction to machine learning for the Global HAB Workshop May
 
 ## Installation
 
-Please
-[fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
-the repository, then
-[clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
-your fork onto your machine in a directory you can remember how to get
-to.
+-   Please
+    [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
+    the repository, then
+    [clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
+    your fork onto your machine in a directory you can remember how to
+    get to.
 
-If you do not use github, and do not want to start, click the green code
-button on this page and select “Download Zip”. Moved the zipped file to
-a directory you can find, and unzip it.
+-   If you do not use github, and do not want to start, click the green
+    code button on this page and select “Download Zip”. Moved the zipped
+    file to a directory you can find, and unzip it.
 
-In RStudio, navigate to the location you cloned or moved the repository
-to in the Files pane. Set it as your working directory by clicking more
-and selecting “Set as Working Directory”. You can also use:
+-   In RStudio, navigate to the location you cloned or moved the
+    repository to in the Files pane. Set it as your working directory by
+    clicking more and selecting “Set as Working Directory”. You can also
+    use:
+
+<!-- -->
 
     setwd(path = "your/path/in/quotes")
+
+-   Once the directory the repository is shown next to the R version in
+    your console pane, run
+
+<!-- -->
+
+    install.packages("devtools")
+    devtools::install()
 
 ## Tidymodels Links
 
