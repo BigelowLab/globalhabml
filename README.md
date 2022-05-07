@@ -52,6 +52,8 @@ An introduction to machine learning for the Global HAB Workshop May
     install.packages("devtools")
     devtools::install()
 
+## Datasets in inst/tutorial\_data/
+
 ## Tidymodels Links
 
 [Official Page](https://www.tidymodels.org/)

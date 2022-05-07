@@ -6,7 +6,7 @@ output: html_document
 ---
 
 
-
+## Load Packages 
 
 ```{r}
 library(readr)
@@ -16,6 +16,7 @@ library(ggplot2)
 ```
 
 
+## Read in Data
 
 ```{r}
 hab <- readr::read_csv(system.file(file.path("input_data", "common_species.csv"), package="globalhabml"))
@@ -23,18 +24,18 @@ hab <- readr::read_csv(system.file(file.path("input_data", "common_species.csv")
 hab
 ```
 
-```{r}
-nrow(hab)
-```
-
+## Get a Summary of the Data
 
 ```{r}
 summary(hab)
 ```
 
+
+## Subset the hab data table to only include features and labels that we want
+
 ```{r}
 data <- hab %>% 
-  select(Chl, Temp, Sal, `Plagioselmis prolonga`) %>% 
+  select(Chl, Temp, Sal, `Paralia sulcata`) %>% 
   tidyr::drop_na()
 
 data
@@ -46,11 +47,16 @@ summary(data)
 ```
 
 
+## Split all of the data into train and test sets
+
+### First create a data split object
+
 ```{r}
 data_split <- initial_split(data, prop=9/10)
 
 data_split
 ```
+
 
 
 ```{r}
@@ -60,7 +66,21 @@ data_train <- training(data_split)
 
 
 ```{r}
+data_train
+```
+
+
+```{r}
+hab_recipe <- recipe(`Paralia sulcata` ~ ., data=data)
+
+hab_recipe
+```
+
+
+```{r}
 hist(data$Chl)
+hist(data$Temp)
+hist(data$Sal)
 ```
 
 
@@ -68,20 +88,32 @@ hist(data$Chl)
 hist(log10(data$Chl+1))
 ```
 
+```{r}
+summary(data)
+```
+
 
 ```{r}
-hab_recipe <- recipe(`Plagioselmis prolonga` ~ ., data=data_split) %>% 
+hab_recipe <- hab_recipe %>% 
   step_log(Chl) %>% 
-  step_normalize(all_numeric_predictors()) %>% 
-  prep()
+  step_normalize(all_numeric_predictors())
+```
+
+
+```{r}
+hab_recipe <- prep(hab_recipe)
 
 hab_recipe
 ```
 
 
 ```{r}
-prepped_training <- juice(hab_recipe)
+prepped_training <- bake(hab_recipe, data_train)
 prepped_testing <- bake(hab_recipe, data_test)
+```
+
+```{r}
+summary(prepped_training)
 ```
 
 
@@ -103,7 +135,7 @@ lr
 
 ```{r}
 lr_fit <- lr %>% 
-  fit(`Plagioselmis prolonga` ~ ., data=prepped_training)
+  fit(`Paralia sulcata` ~ ., data=prepped_training)
 
 lr_fit
 ```
@@ -120,14 +152,15 @@ lr_pred
 ```
 
 
+
 ```{r}
-lr_metrics <- metrics(lr_pred, truth = `Plagioselmis prolonga`, estimate=.pred)
+lr_metrics <- metrics(lr_pred, truth = `Paralia sulcata`, estimate=.pred)
 
 lr_metrics
 ```
 
 ```{r}
-ggplot2::ggplot(data = lr_pred, ggplot2::aes(x=.pred, y=`Plagioselmis prolonga`)) + 
+ggplot2::ggplot(data = lr_pred, ggplot2::aes(x=.pred, y=`Paralia sulcata`)) + 
   ggplot2::geom_point() + 
   ggplot2::geom_abline(slope=1, intercept=0)
 ```
@@ -151,7 +184,7 @@ neighbor
 
 ```{r}
 n_fit <- neighbor %>% 
-  fit(`Plagioselmis prolonga` ~ ., data=prepped_training)
+  fit(`Paralia sulcata` ~ ., data=prepped_training)
 
 n_fit
 ```
@@ -161,7 +194,7 @@ n_pred <- augment(n_fit, prepped_testing)
 ```
 
 ```{r}
-n_metrics <- metrics(n_pred, truth = `Plagioselmis prolonga`, estimate=.pred)
+n_metrics <- metrics(n_pred, truth = `Paralia sulcata`, estimate=.pred)
 
 n_metrics
 ```
@@ -182,7 +215,7 @@ rf <- rand_forest(mode = "regression",
                   engine="ranger")
 
 rf_fit <- rf %>% 
-  fit(`Plagioselmis prolonga` ~ ., data=prepped_training)
+  fit(`Paralia sulcata` ~ ., data=prepped_training)
 
 rf_fit
 
@@ -192,14 +225,14 @@ rf_fit
 ```{r}
 rf_pred <- augment(rf_fit, prepped_testing)
 
-rf_metrics <- metrics(rf_pred, truth = `Plagioselmis prolonga`, estimate=.pred)
+rf_metrics <- metrics(rf_pred, truth = `Paralia sulcata`, estimate=.pred)
 
 rf_metrics
 ```
 
 
 ```{r}
-ggplot2::ggplot(data = rf_pred, ggplot2::aes(x=.pred, y=`Plagioselmis prolonga`)) + 
+ggplot2::ggplot(data = rf_pred, ggplot2::aes(x=.pred, y=`Paralia sulcata`)) + 
   ggplot2::geom_point() + 
   ggplot2::geom_abline(slope=1, intercept=0)
 ```
@@ -213,8 +246,16 @@ summary(hab)
 
 ```{r}
 data <- hab %>% 
-  select(Chl, Temp, Sal, PO4, NO3,  NH4, `Plagioselmis prolonga`) %>% 
+  select(Chl, Temp, Sal, PO4, NO3,  NH4, `Paralia sulcata`) %>% 
   tidyr::drop_na()
+
+data
+```
+
+```{r}
+hist(data$PO4)
+hist(data$NO3)
+hist(data$NH4)
 ```
 
 
@@ -224,17 +265,28 @@ data_split <- initial_split(data, prop=9/10)
 
 data_test <- testing(data_split)
 data_train <- training(data_split)
+```
 
-hab_recipe <- recipe(`Plagioselmis prolonga` ~ ., data=data_split) %>% 
-  step_log(Chl) %>% 
-  step_normalize(all_numeric_predictors()) %>% 
-  prep()
-
-prepped_training <- juice(hab_recipe)
-prepped_testing <- bake(hab_recipe, data_test)
+```{r}
+hab_recipe <- recipe(`Paralia sulcata` ~ ., data=data)
 
 ```
 
+
+```{r}
+hab_recipe <- hab_recipe %>% 
+  step_log(Chl, PO4, NO3, NH4) %>% 
+  step_normalize(all_numeric_predictors())
+```
+
+```{r}
+hab_recipe <- prep(hab_recipe)
+```
+
+```{r}
+prepped_training <- bake(hab_recipe, data_train)
+prepped_testing <- bake(hab_recipe, data_test)
+```
 
 
 ```{r}
@@ -242,18 +294,22 @@ rf <- rand_forest(mode = "regression",
                   engine="ranger")
 
 rf_fit <- rf %>% 
-  fit(`Plagioselmis prolonga` ~ ., data=prepped_training)
+  fit(`Paralia sulcata` ~ ., data=prepped_training)
 
 rf_pred_2 <- augment(rf_fit, prepped_testing)
 
-rf_metrics_2 <- metrics(rf_pred_2, truth = `Plagioselmis prolonga`, estimate=.pred)
+rf_metrics_2 <- metrics(rf_pred_2, truth = `Paralia sulcata`, estimate=.pred)
 
 rf_metrics_2
 
 ```
 
 ```{r}
-ggplot2::ggplot(data = rf_pred_2, ggplot2::aes(x=.pred, y=`Plagioselmis prolonga`)) + 
+rf_metrics
+```
+
+```{r}
+ggplot2::ggplot(data = rf_pred_2, ggplot2::aes(x=.pred, y=`Paralia sulcata`)) + 
   ggplot2::geom_point() + 
   ggplot2::geom_abline(slope=1, intercept=0)
 ```

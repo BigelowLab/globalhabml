@@ -42,6 +42,10 @@ setwd(path = "your/path/in/quotes")
 install.packages("devtools")
 devtools::install()
 ```
+
+## Datasets in inst/tutorial_data/
+
+
 ## Tidymodels Links
 
 [Official Page](https://www.tidymodels.org/)
