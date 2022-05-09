@@ -132,7 +132,7 @@ rf_metrics <- metrics(rf_pred, truth = `Plagioselmis prolonga`, estimate=.pred)
 rf_metrics
 
 
-ggplot2::ggplot(data = rf_pred, ggplot2::aes(x=`Plagioselmis prolonga`, y=.pred)) + 
+ggplot2::ggplot(data = rf_pred, ggplot2::aes(x=.pred, y=`Plagioselmis prolonga`)) + 
   ggplot2::geom_point() + 
   ggplot2::geom_abline(slope=1, intercept=0)
 

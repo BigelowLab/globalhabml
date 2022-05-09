@@ -25,20 +25,20 @@ hab
 
 ```{r}
 data <- hab %>% 
-  select(Chl, Temp, Sal, PO4, NO3,  NH4, `Plagioselmis prolonga`) %>% 
+  select(Chl, Temp, Sal, `Paralia sulcata`) %>% 
   tidyr::drop_na()
 
 summary(data)
 ```
 
 ```{r}
-hist(data$`Plagioselmis prolonga`)
+hist(data$`Paralia sulcata`)
 ```
 
 
 ```{r}
 data <- data %>% 
-  mutate(bloom = recode_classification(`Plagioselmis prolonga`, lut=c(0,100,500)))
+  mutate(bloom = recode_classification(`Paralia sulcata`, lut=c(0,250)))
 
 data
 ```
@@ -49,7 +49,7 @@ data %>% count(bloom)
 
 ```{r}
 data <- data %>% 
-  select(-`Plagioselmis prolonga`) %>% 
+  select(-`Paralia sulcata`) %>% 
   mutate(bloom = as.factor(bloom))
 ```
 
@@ -64,16 +64,31 @@ data_split <- initial_split(data, prop=9/10)
 
 data_test <- testing(data_split)
 data_train <- training(data_split)
+```
 
-hab_recipe <- recipe(bloom ~ ., data=data_split) %>% 
+```{r}
+hab_recipe <- recipe(bloom ~ ., data=data_split)
+```
+
+```{r}
+hab_recipe <- hab_recipe %>% 
   step_log(Chl) %>% 
-  step_normalize(all_numeric_predictors()) %>% 
-  prep()
-
-prepped_training <- juice(hab_recipe)
-prepped_testing <- bake(hab_recipe, data_test)
+  step_normalize(all_numeric_predictors())
 
 ```
+
+
+```{r}
+hab_recipe <- prep(hab_recipe)
+
+hab_recipe
+```
+
+```{r}
+prepped_training <- bake(hab_recipe, data_train)
+prepped_testing <- bake(hab_recipe, data_test)
+```
+
 
 ```{r}
 rf <- rand_forest(mode = "classification",
@@ -90,5 +105,19 @@ rf_metrics
 
 ```
 
+
+```{r}
+rf_pred
+```
+
+
+```{r}
+conf_mat(rf_pred, truth=bloom, estimate=.pred_class)
+```
+
+
+```{r}
+prepped_testing %>% count(bloom)
+```
 
 

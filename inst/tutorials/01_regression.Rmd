@@ -246,7 +246,7 @@ summary(hab)
 
 ```{r}
 data <- hab %>% 
-  select(Chl, Temp, Sal, PO4, NO3,  NH4, `Paralia sulcata`) %>% 
+  select(Chl, Temp, Sal, PO4, NO3,  NH4,  Si, `Paralia sulcata`) %>% 
   tidyr::drop_na()
 
 data
@@ -256,6 +256,7 @@ data
 hist(data$PO4)
 hist(data$NO3)
 hist(data$NH4)
+hist(data$Si)
 ```
 
 
